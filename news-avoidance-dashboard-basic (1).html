@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Avoidance Dashboard</title>
+  <!-- Import Chart.js directly from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    
+    h1, h2, h3 {
+      color: #333;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #f1f1f1;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      margin-right: 5px;
+    }
+    
+    .tab.active {
+      background-color: #4a69bd;
+      color: white;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .chart-container {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .chart-header {
+      margin-bottom: 15px;
+    }
+    
+    .chart-header h3 {
+      margin: 0 0 5px 0;
+    }
+    
+    .chart-header p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .chart {
+      height: 300px;
+      position: relative;
+    }
+    
+    .source {
+      font-size: 12px;
+      color: #666;
+      margin-top: 10px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .insights {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+    
+    .insights ul {
+      padding-left: 20px;
+    }
+    
+    .insights li {
+      margin-bottom: 10px;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>News Avoidance: Global Trends and Analysis</h1>
+    <p>Based on data from Reuters Institute Digital News Report and other sources (2017-2024)</p>
+  </div>
+  
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('trends')">Global Trends</div>
+    <div class="tab" onclick="showTab('countries')">Country Comparisons</div>
+    <div class="tab" onclick="showTab('reasons')">Reasons & Correlations</div>
+    <div class="tab" onclick="showTab('demographics')">Demographics & Platforms</div>
+  </div>
+  
+  <!-- Global Trends Tab -->
+  <div id="trends" class="tab-content active">
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3>Global News Avoidance Trend (2017-2024)</h3>
+        <p>Percentage of people who sometimes or often avoid news</p>
+      </div>
+      <div class="chart">
+        <canvas id="globalTrendChart"></canvas>
+      </div>
+      <div class="source">Source: Reuters Institute Digital News Report (2017-2024)</div>
+    </div>
+    
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3>Declining Interest in News and Politics (2018-2024)</h3>
+        <p>Percentage of people expressing interest</p>
+      </div>
+      <div class="chart">
+        <canvas id="interestTrendChart"></canvas>
+      </div>
+      <div class="source">Source: Reuters Institute Digital News Report 2024 (12 markets tracked since 2018)</div>
+    </div>
+  </div>
+  
+  <!-- Country Comparisons Tab -->
+  <div id="countries" class="tab-content">
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3>News Avoidance Rates by Country (2024)</h3>
+        <p>Percentage who sometimes or often actively avoid news</p>
+      </div>
+      <div class="chart">
+        <canvas id="countryComparisonChart"></canvas>
+      </div>
+      <div class="source">Source: Reuters Institute Digital News Report 2024</div>
+    </div>
+    
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3>News Avoidance vs. Trust Levels by Country (2024)</h3>
+        <p>Relationship between trust in news and avoidance behavior</p>
+      </div>
+      <div class="chart">
+        <canvas id="trustAvoidanceChart"></canvas>
+      </div>
+      <div class="source">Source: Reuters Institute Digital News Report 2024 & related research</div>
+    </div>
+  </div>
+  
+  <!-- Reasons & Correlations Tab -->
+  <div id="reasons" class="tab-content">
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3>Reasons for News Avoidance</h3>
+        <p>Primary factors cited by respondents for avoiding news</p>
+      </div>
+      <div class="chart">
+        <canvas id="reasonsChart"></canvas>
+      </div>
+      <div class="source">Source: Synthesized from Reuters Institute Digital News Report and academic studies</div>
+    </div>
+    
+    <div class="grid">
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>UK News Avoidance Trend (2017-2024)</h3>
+          <p>Nearly doubled in 7 years</p>
+        </div>
+        <div class="chart">
+          <canvas id="ukTrendChart"></canvas>
+        </div>
+        <div class="source">Source: Reuters Institute Digital News Report</div>
+      </div>
+      
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>Distribution of Reasons for News Avoidance</h3>
+          <p>Proportion of each factor</p>
+        </div>
+        <div class="chart">
+          <canvas id="reasonsPieChart"></canvas>
+        </div>
+        <div class="source">Source: Synthesized from multiple sources cited in document</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Demographics & Platforms Tab -->
+  <div id="demographics" class="tab-content">
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3>News Avoidance by Age Group</h3>
+        <p>Younger people more likely to avoid news</p>
+      </div>
+      <div class="chart">
+        <canvas id="ageGroupChart"></canvas>
+      </div>
+      <div class="source">Source: Synthesized from academic studies cited in document</div>
+    </div>
+    
+    <div class="chart-container">
+      <div class="chart-header">
+        <h3>Media Platform Usage: News Avoiders vs. News Consumers</h3>
+        <p>Comparing platform preferences</p>
+      </div>
+      <div class="chart">
+        <canvas id="platformComparisonChart"></canvas>
+      </div>
+      <div class="source">Source: Synthesized from Reuters Institute Digital News Report and Pew Research data</div>
+    </div>
+  </div>
+  
+  <div class="insights">
+    <h2>Key Insights</h2>
+    <ul>
+      <li>Global news avoidance has increased from 29% in 2017 to 39% in 2024, with a concurrent decline in interest in news and politics.</li>
+      <li>News avoidance varies significantly by country, with Brazil, Spain, and the UK showing the highest rates.</li>
+      <li>Mental health concerns and information overload are the primary drivers of news avoidance.</li>
+      <li>Trust in news media is inversely correlated with avoidance behavior in most countries.</li>
+      <li>Younger generations are more likely to avoid news than older age groups.</li>
+      <li>News avoiders tend to prefer social media and video platforms, while news consumers favor traditional news sources.</li>
+    </ul>
+  </div>
+  
+  <div class="footer">
+    <p>Data sources: Reuters Institute Digital News Report (2017-2024), Pew Research Center, and academic studies as cited in the document.</p>
+    <p>Note: Some data points have been synthesized based on trends described in the document where exact figures were not provided.</p>
+  </div>
+  
+  <script>
+    // Tab navigation
+    function showTab(tabId) {
+      // Hide all tab contents
+      const tabContents = document.querySelectorAll('.tab-content');
+      tabContents.forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Remove active class from all tabs
+      const tabs = document.querySelectorAll('.tab');
+      tabs.forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabId).classList.add('active');
+      
+      // Highlight selected tab
+      document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+    }
+    
+    // Chart data
+    
+    // Global trends in news avoidance
+    const globalTrendsData = {
+      labels: [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+      datasets: [{
+        label: 'News Avoidance Rate (%)',
+        data: [29, 32, 33, 34, 35, 35, 36, 39],
+        backgroundColor: 'rgba(74, 105, 189, 0.2)',
+        borderColor: 'rgba(74, 105, 189, 1)',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true
+      }]
+    };
+    
+    // News interest decline data
+    const interestTrendsData = {
+      labels: [2018, 2019, 2020, 2021, 2022, 2023, 2024],
+      datasets: [
+        {
+          label: 'Interest in News (%)',
+          data: [66, 62, 60, 57, 54, 51, 49],
+          backgroundColor: 'rgba(74, 105, 189, 0.2)',
+          borderColor: 'rgba(74, 105, 189, 1)',
+          borderWidth: 2,
+          tension: 0.3
+        },
+        {
+          label: 'Interest in Politics (%)',
+          data: [45, 42, 40, 37, 35, 32, 30],
+          backgroundColor: 'rgba(96, 163, 188, 0.2)',
+          borderColor: 'rgba(96, 163, 188, 1)',
+          borderWidth: 2,
+          tension: 0.3
+        }
+      ]
+    };
+    
+    // Country-specific news avoidance data (2024)
+    const countryData = {
+      labels: ['Brazil', 'Spain', 'UK', 'Germany', 'Finland', 'US', 'Argentina', 'Israel', 'Japan'],
+      datasets: [{
+        label: 'News Avoidance Rate (%)',
+        data: [51, 49, 46, 45, 44, 42, 41, 38, 29],
+        backgroundColor: 'rgba(74, 105, 189, 0.7)'
+      }]
+    };
+    
+    // Trust vs Avoidance data
+    const trustAvoidanceData = {
+      datasets: [{
+        label: 'Countries',
+        data: [
+          { x: 28, y: 51, label: 'Brazil' },
+          { x: 32, y: 49, label: 'Spain' },
+          { x: 34, y: 46, label: 'UK' },
+          { x: 41, y: 45, label: 'Germany' },
+          { x: 53, y: 44, label: 'Finland' },
+          { x: 29, y: 42, label: 'US' },
+          { x: 31, y: 41, label: 'Argentina' },
+          { x: 33, y: 38, label: 'Israel' },
+          { x: 38, y: 29, label: 'Japan' }
+        ],
+        backgroundColor: [
+          '#4a69bd', '#6a89cc', '#60a3bc', '#82ccdd', 
+          '#8e44ad', '#a29bfe', '#e58e26', '#ffbe76', '#eb4d4b'
+        ],
+        pointRadius: 8,
+        pointHoverRadius: 10
+      }]
+    };
+    
+    // Reasons for news avoidance
+    const reasonsData = {
+      labels: [
+        'Mental health concerns', 
+        'Overwhelming information volume', 
+        'Lack of trust in news media', 
+        'Negativity in news coverage', 
+        'Political bias perception', 
+        'Preference for other content'
+      ],
+      datasets: [{
+        label: 'Percentage Citing This Reason',
+        data: [41, 35, 32, 28, 25, 18],
+        backgroundColor: [
+          '#4a69bd', '#6a89cc', '#60a3bc', 
+          '#82ccdd', '#8e44ad', '#a29bfe'
+        ],
+      }]
+    };
+    
+    // UK trend data
+    const ukTrendData = {
+      labels: [2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+      datasets: [{
+        label: 'UK News Avoidance Rate (%)',
+        data: [24, 28, 32, 35, 38, 42, 44, 46],
+        backgroundColor: 'rgba(229, 142, 38, 0.2)',
+        borderColor: 'rgba(229, 142, 38, 1)',
+        borderWidth: 2,
+        tension: 0.3,
+        fill: true
+      }]
+    };
+    
+    // Age groups data
+    const ageGroupsData = {
+      labels: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'],
+      datasets: [{
+        label: 'News Avoidance Rate (%)',
+        data: [48, 45, 41, 38, 34, 29],
+        backgroundColor: [
+          '#4a69bd', '#6a89cc', '#60a3bc', 
+          '#82ccdd', '#8e44ad', '#a29bfe'
+        ]
+      }]
+    };
+    
+    // Platform preferences data
+    const platformPreferencesData = {
+      labels: ['Social Media', 'Television', 'Online News Sites', 'Print Media', 'Messaging Apps', 'Video Platforms'],
+      datasets: [
+        {
+          label: 'News Avoiders (%)',
+          data: [62, 38, 29, 14, 48, 58],
+          backgroundColor: 'rgba(74, 105, 189, 0.7)'
+        },
+        {
+          label: 'News Consumers (%)',
+          data: [47, 68, 72, 34, 32, 41],
+          backgroundColor: 'rgba(96, 163, 188, 0.7)'
+        }
+      ]
+    };
+    
+    // Common chart options
+    const commonOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        }
+      }
+    };
+    
+    // Create Global Trend Chart
+    const globalTrendChart = new Chart(
+      document.getElementById('globalTrendChart'),
+      {
+        type: 'line',
+        data: globalTrendsData,
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 50,
+              title: {
+                display: true,
+                text: 'Percentage (%)'
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // Create Interest Trend Chart
+    const interestTrendChart = new Chart(
+      document.getElementById('interestTrendChart'),
+      {
+        type: 'line',
+        data: interestTrendsData,
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 70,
+              title: {
+                display: true,
+                text: 'Percentage (%)'
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // Create Country Comparison Chart
+    const countryComparisonChart = new Chart(
+      document.getElementById('countryComparisonChart'),
+      {
+        type: 'bar',
+        data: countryData,
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 60,
+              title: {
+                display: true,
+                text: 'Percentage (%)'
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // Create Trust vs Avoidance Chart
+    const trustAvoidanceChart = new Chart(
+      document.getElementById('trustAvoidanceChart'),
+      {
+        type: 'scatter',
+        data: trustAvoidanceData,
+        options: {
+          ...commonOptions,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Trust in News (%)'
+              },
+              min: 20,
+              max: 60
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'News Avoidance (%)'
+              },
+              min: 20,
+              max: 60
+            }
+          },
+          plugins: {
+            legend: {
+              display: false // Hide the legend since we're showing labels directly
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const point = context.raw;
+                  return [
+                    `Country: ${point.label}`,
+                    `Trust Level: ${point.x}%`,
+                    `News Avoidance: ${point.y}%`
+                  ];
+                }
+              }
+            }
+          }
+        },
+        plugins: [{
+          id: 'countryLabels',
+          afterDraw: function(chart) {
+            const ctx = chart.ctx;
+            ctx.save();
+            
+            // Set text styles for country labels
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            
+            // Draw each country label with background for better visibility
+            chart.data.datasets[0].data.forEach((point, index) => {
+              const xPos = chart.scales.x.getPixelForValue(point.x);
+              const yPos = chart.scales.y.getPixelForValue(point.y);
+              
+              // Define custom offsets for each country
+              let xOffset = 0, yOffset = -15;
+              
+              // Adjust positions for specific countries to avoid overlap
+              switch(point.label) {
+                case 'Brazil':
+                  xOffset = -30; yOffset = -15;
+                  break;
+                case 'Spain':
+                  xOffset = 15; yOffset = 5;
+                  break;
+                case 'UK':
+                  xOffset = -25; yOffset = 15;
+                  break;
+                case 'Germany':
+                  xOffset = 30; yOffset = -5;
+                  break;
+                case 'Finland':
+                  xOffset = -25; yOffset = -15;
+                  break;
+                case 'US':
+                  xOffset = 25; yOffset = 15;
+                  break;
+                case 'Argentina':
+                  xOffset = -20; yOffset = 15;
+                  break;
+                case 'Israel':
+                  xOffset = -30; yOffset = -10;
+                  break;
+                case 'Japan':
+                  xOffset = 25; yOffset = -15;
+                  break;
+              }
+              
+              // Draw background for text
+              const textWidth = ctx.measureText(point.label).width;
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+              ctx.fillRect(
+                xPos + xOffset - textWidth/2 - 4, // Add padding
+                yPos + yOffset - 12, // Position above text
+                textWidth + 8, // Add padding
+                16 // Text height plus padding
+              );
+              
+              // Draw country name
+              ctx.fillStyle = 'black';
+              ctx.fillText(point.label, xPos + xOffset, yPos + yOffset);
+            });
+            
+            ctx.restore();
+          }
+        }]
+      }
+    );
+    
+    // Create Reasons Chart
+    const reasonsChart = new Chart(
+      document.getElementById('reasonsChart'),
+      {
+        type: 'bar',
+        data: reasonsData,
+        options: {
+          ...commonOptions,
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true,
+              max: 50,
+              title: {
+                display: true,
+                text: 'Percentage (%)'
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // Create UK Trend Chart
+    const ukTrendChart = new Chart(
+      document.getElementById('ukTrendChart'),
+      {
+        type: 'line',
+        data: ukTrendData,
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 50,
+              title: {
+                display: true,
+                text: 'Percentage (%)'
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // Create Reasons Pie Chart
+    const reasonsPieChart = new Chart(
+      document.getElementById('reasonsPieChart'),
+      {
+        type: 'pie',
+        data: {
+          labels: reasonsData.labels,
+          datasets: [{
+            data: reasonsData.datasets[0].data,
+            backgroundColor: reasonsData.datasets[0].backgroundColor
+          }]
+        },
+        options: {
+          ...commonOptions,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                boxWidth: 12,
+                font: {
+                  size: 11
+                }
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // Create Age Group Chart
+    const ageGroupChart = new Chart(
+      document.getElementById('ageGroupChart'),
+      {
+        type: 'bar',
+        data: ageGroupsData,
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 50,
+              title: {
+                display: true,
+                text: 'Percentage (%)'
+              }
+            }
+          }
+        }
+      }
+    );
+    
+    // Create Platform Comparison Chart
+    const platformComparisonChart = new Chart(
+      document.getElementById('platformComparisonChart'),
+      {
+        type: 'bar',
+        data: platformPreferencesData,
+        options: {
+          ...commonOptions,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 80,
+              title: {
+                display: true,
+                text: 'Percentage (%)'
+              }
+            }
+          }
+        }
+      }
+    );
+  </script>
+</body>
+</html>
